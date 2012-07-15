@@ -1,0 +1,139 @@
+/*@font-face
+{
+	font-family:"MuseoSans";
+	src: url(https://docs.google.com/open?id=0B1TSeCZsgId4bmJRcXdnSVhYczg) format("truetype");
+}*/
+
+
+body{
+	font-family:"museo Sans 500";
+	font-size:14px
+}
+
+header{
+	position: fixed;
+	z-index:100;
+	width:100%;
+	background-color: #ebe6dc;
+}
+img.logo{
+	width:45px;
+	height:45px;
+}
+
+div#pageOne{
+	margin:0 3px;
+}
+
+input#aroundMe{
+	background-image:url(../resources/pinmap.png), -webkit-gradient(linear, left top, left bottom, from(#bfc0bc), to(#646560));
+	width:45px;
+	height:45px;
+	border:0;
+	margin:0 1px;
+}
+input#favorites{
+	background-image:url(../resources/fav_icon.png), -webkit-gradient(linear, left top, left bottom, from(#bfc0bc), to(#646560));
+	width:45px;
+	height:45px;
+	border:0;
+	margin:0 1px 0 0;
+}
+input#settings{
+	background-image:url(../resources/settings.png), -webkit-gradient(linear, left top, left bottom, from(#bfc0bc), to(#646560));;
+	width:45px;
+	height:45px;
+	border:0;
+	margin:0 1px 0 0;
+}
+#linksContainer
+{
+/* not working....
+display:box;
+box-orient:horizontal;
+box-pack:center;
+box-align:center;*/
+}
+	#linksContainer a{
+		text-decoration:none;
+		text-align:center;
+		width:auto;
+		min-width:45px;
+		height:45px;
+		line-height:45px;
+		padding:0 3px;
+		float:left;
+		background-color:#646560;
+		border-right:1px solid #bfc0bc;
+		color:#fff;
+	}
+	/*#linksContainer a:first-child{
+		background: -webkit-gradient(linear, left top, left bottom, from(#00d0e8), to(#0095a6));
+	}*/
+	#linksContainer a:last-child{
+		border-right:none;
+	}
+.left
+{
+	float:left;
+}
+
+.css3_accordion div {
+	height: 0;
+	overflow: hidden;
+	-webkit-transition: height 500ms ease; 
+	background-color:#bfc0bc;
+	width:30%;
+}
+.css3_accordion div:target {
+ 	height: auto;
+ 	width:100%;
+}
+/*div.css3_accordion a{
+	text-decoration:none;
+	color:#fff;
+	background-color: #646560;
+	width:30%;
+}*/
+
+.accordion a { 
+	display:block; 
+	background-color:#646560; 
+	color:#fff; 
+	text-decoration:none; 
+	width:100%;
+	border-bottom:1px solid #fff;
+	min-height:44px;
+}
+.accordion div p { 
+	padding:20px;
+}
+
+.panel {
+position: fixed;
+top: 53px;
+right: 0;
+display: none;
+background: #000;
+border:1px solid #111111;
+width: 30%;
+height: 500px;
+padding: 30px;
+filter: alpha(opacity=85);
+opacity: .85;
+}
+
+header{
+	margin:0;
+}
+
+#map{
+	position: fixed;
+
+}
+
+
+
+
+
+
