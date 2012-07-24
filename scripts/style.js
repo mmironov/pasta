@@ -19,10 +19,14 @@ define(["jQuery", "text!templates/pageOne.html"], function($, pageone) {
     }
 
 
+    function test3(eventName){
+        return 'kris3';
+    }
 
     return {
       
-        setStyle: setStyle
+        setStyle: setStyle,
+        test3: test3
     }
 
 

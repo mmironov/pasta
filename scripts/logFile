@@ -77,3 +77,4 @@ result: {"points":[{"latitude":42.1457,"longitude":12.1501}]}, res={"points":[{"
 result: {"points":[{"latitude":41.1359,"longitude":14.5012}]}, res={"points":[{"latitude":41.1359,"longitude":14.5012}]}, points: 14.5012
 result: {"points":[{"latitude":42.219,"longitude":12.6994}]}, res={"points":[{"latitude":42.219,"longitude":12.6994}]}, points: 12.6994
 result: {"points":[{"latitude":41.2682,"longitude":13.2927}]}, res={"points":[{"latitude":41.2682,"longitude":13.2927}]}, points: 13.2927
+result: {"points":[{"latitude":43.3078,"longitude":11.469}]}, res={"points":[{"latitude":43.3078,"longitude":11.469}]}, points: 11.469
