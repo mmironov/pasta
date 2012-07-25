@@ -22,7 +22,7 @@
     var circleOptions, lat, lng, circle, condPlacesAround;
     var latNeighbour, lngNeighbour, conditions;
     var jsonNeighbourCoords, jsonPlacesIds = [], jsonPlacesFilters = [], circlesArray = [], markerCircle = [];
-    var documents = "documents_group/";
+    var documents = "documents/";
     var pagination = "/limit:10000/count:1";
     var accordionValues, key, count = 0;;
     var bodyAccordion = $("#bodyAccordion"); 
@@ -126,8 +126,6 @@
               success: function(data){ Data = data.data;},
               dataType:"json"
             });
-
-            alert(Data.length);
         
           var articles = 7; //for example
 
