@@ -25,7 +25,6 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
 
         // fill the list of links and put each of them into the DOM
         var linkValues = {
-            //linkUrl: "http://www.di.univaq.it/malavolta",
            linkUrl: "#"
         };
 
@@ -36,15 +35,9 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
             linksContainer.append(fillSubPageTemplate(linkValues));
         }
 
-
-        //googleMaps.drawMap();
         style.setStyle();
         semanticwire.getClickPoint();
         semanticwire.semanticWireAgent();
-        //alert(semanticwire.getClickPoint());
-        //alert(googleMaps.test3());
-        //alert(newsPool.items[0].description);
-       // alert(googleMaps.flagClicked(null,tst));
         
         //accordion effect
         $("#logo").click(function(){
@@ -53,7 +46,6 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
         return false;
         });
 
-  
     } //end of function render
 
 

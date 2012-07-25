@@ -11,22 +11,15 @@ define(["jQuery", "text!templates/pageOne.html"], function($, pageone) {
         $("#linksContainer a:nth-child(1)").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[0] +"), color-stop(99%," + colorsTo[0] + "))"});
         $("#linksContainer a").click(function(){
             state = $("#linksContainer a").index(this);
-            //console.log(state);
             //the default - grey color
             $("#linksContainer a").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[7] +"), color-stop(99%," + colorsTo[7] + "))"});
             $("#linksContainer a:nth-child(" + (state + 1) + ")").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[state] +"), color-stop(99%," + colorsTo[state] + "))"});
         });
     }
 
-
-    function test3(eventName){
-        return 'kris3';
-    }
-
     return {
       
-        setStyle: setStyle,
-        test3: test3
+        setStyle: setStyle
     }
 
 
