@@ -1,5 +1,5 @@
-define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
-  function($, Handlebars, pageoneTemplate, accordionPageTemplate) {
+define(["jQuery", "Handlebars", "MarkerClusterer", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
+  function($, Handlebars, MarkerClusterer, pageoneTemplate, accordionPageTemplate) {
 
   var map;
 
@@ -7,7 +7,6 @@ function drawMap(eventName){
 
       // here we require the GMaps library and then we show the map
         require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&language=en!callback"], function() {
-
           var clickPoint=[];
           var initialPoint = new google.maps.LatLng(42.389638,13.29269);
           var DEFAULT_ZOOM = 7; //3 to 8
@@ -59,9 +58,9 @@ function drawMap(eventName){
               "width": $(document).width() + "px",
               "height": $(document).height() + "px"
           });
-          map = new google.maps.Map(document.getElementById(mapCanvas.attr("id")), myOptions);
-          map.setOptions({styles:styleArray});
-          google.maps.event.trigger(map, 'resize');
+        map = new google.maps.Map(document.getElementById(mapCanvas.attr("id")), myOptions);
+        map.setOptions({styles:styleArray});
+        google.maps.event.trigger(map, 'resize');
 
 
           var goldStar = {
@@ -82,9 +81,9 @@ function drawMap(eventName){
 
           // var infoWindow = new google.maps.InfoWindow({
           //     content: 'zoom info',
-          //     position: initialPoint
+          //     position: new google.maps.LatLng(41.900233,12.494202)
           // });
-          // infoWindow.open(map);
+         // infoWindow.open(map);
 
           // google.maps.event.addListener(map, 'zoom_changed', function(){
           //     var zoomLevel = map.getZoom();
@@ -92,24 +91,25 @@ function drawMap(eventName){
           // })
         
 
-          /*var marker = new google.maps.Marker({
-            position: map.getCenter(),
-            map: map,
-            title: 'Click to zoom'
-          });
+          // var marker = new google.maps.Marker({
+          //   position: map.getCenter(),
+          //   map: map,
+          //   title: 'Click to zoom'
+          // });
 
-          google.maps.event.addListener(map, 'center_changed', function() {
-            // 3 seconds after the center of the map has changed, pan back to the
-            // marker.
-            window.setTimeout(function() {
-              map.panTo(marker.getPosition());
-            }, 3000);
-          });
+          // google.maps.event.addListener(map, 'center_changed', function() {
+          //   // 3 seconds after the center of the map has changed, pan back to the
+          //   // marker.
+          //   window.setTimeout(function() {
+          //     map.panTo(marker.getPosition());
+          //   }, 3000);
+          // });
 
-          google.maps.event.addListener(marker, 'click', function() {
-            map.setZoom(8);
-            map.setCenter(marker.getPosition());
-          });*/
+          // google.maps.event.addListener(marker, 'click', function() {
+          //   //map.setZoom(8);
+          //   //map.setCenter(marker.getPosition());
+          //   infoWindow.open(map);
+          // });
 
         }); //end require
 
