@@ -54,7 +54,7 @@ box-orient:horizontal;
 box-pack:center;
 box-align:center;*/
 }
-	#linksContainer a{
+	#linksContainer a, #advancedSearch a{
 		text-decoration:none;
 		text-align:center;
 		width:auto;
@@ -132,7 +132,39 @@ header{
 
 }
 
+/*pop up styles*/
+#popup_box { 
+	display:none; /* Hide the DIV */
+	position:fixed;  
+	_position:absolute; /* hack for internet explorer 6 */  
+	height:auto;  
+	width:auto;  
+	background:#FFFFFF;  
+	left: 300px;
+	top: 150px;
+	z-index:1;
+	margin-left: 15px;  
+	
+	/* additional features, can be omitted */
+	border:2px solid #646560;  	
+	padding:15px;  
+	font-size:15px;  
+	-moz-box-shadow: 0 0 5px #646560;
+	-webkit-box-shadow: 0 0 5px #646560;
+	box-shadow: 0 0 5px #646560;
+	
+}
 
+/* This is for the positioning of the Close Link */
+#popupBoxClose {
+	font-size:20px;  
+	line-height:15px;  
+	right:5px;  
+	top:5px;  
+	position:absolute;  
+	color:#646560;  
+	font-weight:500;  	
+}
 
 
 

@@ -6,20 +6,74 @@
 
     var apiKey = "/api_key:4fc54b75-06dc-4d64-935e-39eec0a8017b";
     var baseUrl = "http://www.semanticwire.com/api/v2.1/";
-    var callPoint ="filters";
+    //var callPoint ="filters";
     var extension = ".json";
-    var fullUrl = baseUrl + callPoint + apiKey + extension; 
-    var url = "http://www.semanticwire.com/api/v2.1/library/CityDisambiguated/limit:100.json";
+    var filterUrl = baseUrl + "filters" + apiKey + extension; 
+    var cityDisambiguatedUrl = baseUrl + "library/CityDisambiguated/limit:200.json";
+    var keywordUrl = baseUrl + "library/Tag/limit:1.json";
     var urlPool, infoWindow;
-    var i, j, Data = {};
+    var i, j, Data = {}, advSearchData, dataTimeFilter = {}, dataKeywordFilter ={};
+    var keywordConditions= {};
+    var keyword, timeConditions;
+
+    function timeFilterCreation(){
+       if (advSearchData == null){
+          timeConditions = {"Filter": {"start_date": "-7 days","end_date": "now"}};
+        }
+        else{
+          tagFilterCreation();
+          var keyword;
+          // if (keywordId){
+           keyword = {"and": { "Tag": { "id" : dataKeywordFilter[0].Tag.id}}};
+           
+          // }
+          timeConditions = {"Filter": {"start_date": advSearchData.timeFilterFrom,"end_date": advSearchData.timeFilterTo, "conditions": keyword}};
+          alert(JSON.stringify(timeConditions));
+        }
+          $.ajax({
+              url: filterUrl,
+              data: timeConditions,
+              type: 'POST',
+              dataType: 'json',
+              async: false, //wait for result then continue the code
+              success: function(data) {
+                  dataTimeFilter = data.data;
+               },
+              error: function(jqXHR, textStatus, errorThrown) {
+                  alert('Error:' + textStatus);
+              }
+          });
+    }
+
+    function tagFilterCreation(){
+     
+      if (advSearchData.keyword){
+        keywordConditions = {"conditions": {"name" : advSearchData.keyword}};
+        alert("test");
+         $.ajax({
+              url: keywordUrl,
+              data: keywordConditions,
+              type: 'POST',
+              dataType: 'json',
+              async: false, //wait for result then continue the code
+              success: function(data) {
+                 dataKeywordFilter = data.data;
+               },
+              error: function(jqXHR, textStatus, errorThrown) {
+                  alert('Error:' + textStatus);
+              }
+          });
+      }
+    }
 
  function getClickPoint(eventName){
-   require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&language=en!callback"], function() {
+
+     //creating time filter
+          
+
+    require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&language=en!callback"], function() {
 
     var map = googleMaps.drawMap();
-    //map.addControl(new GLargeMapControl());
-
-    //var phpRestURL = 'http://localhost/pasta/scripts/backend/'; 
     var circleOptions, lat, lng, circle, condPlacesAround;
     var latNeighbour, lngNeighbour, idNeighbour, nameNeighbour, conditions;
     var jsonNeighbourhood, jsonPlacesFilters, circlesArray = [], markerCircle = [];
@@ -31,6 +85,7 @@
 
     google.maps.event.addListener(map, 'click', function(event){
     //infoWindow.setContent('clicked' + event.latLng.lat()) ;
+      map.panTo(event.latLng);
           jsonNeighbourhood = [];
           jsonPlacesFilters = [];
           
@@ -60,7 +115,7 @@
 
           //getting the neighbourhood points in radius 50 miles from the clicked point
           $.ajax({
-              url: url,
+              url: cityDisambiguatedUrl,
               data: condPlacesAround,
               type: 'POST',
               dataType: 'json',
@@ -85,12 +140,14 @@
               }
           });
 
+          timeFilterCreation();
+
            //creating a filter with the Ids of the neighbour places 
            for (i = 0; i < jsonNeighbourhood.length; i++){
-           conditions = {"Filter": {"start_date": "-7 days","end_date": "now","conditions": {"and": {"CityDisambiguated": {"id": jsonNeighbourhood[i].id}}}}};
+           conditions = {"Filter": {"parent_id": [dataTimeFilter.Filter.id] ,"conditions": {"and": {"CityDisambiguated": {"id": jsonNeighbourhood[i].id}}}}};
            //conditions = {"Filter": {"start_date": "-7 days","end_date": "now","conditions": {"and": {"CityDisambiguated": jsonPlacesIds}}}};
             $.ajax({
-              url: fullUrl,
+              url: filterUrl,
               data: conditions,
               type: 'POST',
               dataType: 'json',
@@ -182,11 +239,13 @@
 
          // Data = {};
 
-    });//end event listener - click
+      });//end event listener - click
     
 
-  }); //end require
-} //end function getClickPoint
+    }); //end require
+
+
+  } //end function getClickPoint
 
 // function bindInfo(){
 
@@ -200,7 +259,16 @@
 
 
 
- function semanticWireAgent(eventName){
+function semanticWireAgent(eventName){
+   for (i = 0; i < 3; i++){
+            temp = "#advancedSearch" + (i + 1);
+            $(temp).bind('click', loadPopupBox);
+         }   
+        $('#popupBoxClose').click( function() {         
+            advSearchData = unloadPopupBox();
+        });
+
+ // $(document).bind('advanced_search', function(e, data) {getAdvancedSearchValues(e, data);});
   // for (i = 0; i < jsonNewsCount.length; i++){
   //    $('#pageOne').append(jsonNewsCount[i] + " ");
   //  }
@@ -211,11 +279,39 @@
     //         {title: Data[1].Document.title, description: Data[1].Document.description}
     //     ]
     // };
-    } //end semanticWireAgent
+} //end semanticWireAgent
    
+    function unloadPopupBox(eventName) { // TO Unload the Popupbox
+        $('#popup_box').fadeOut("slow");
+        $("#map").css({ // this is just for style     
+            "opacity": "1"  
+        }); 
+        advSearchValues = {
+        keyword : $("input[name=keyword]").val(),
+        timeFilterFrom : $("input[name=timeFrom]").val(),
+        timeFilterTo : $("input[name=timeTo]").val(),
+        place : $("input[name=place]").val(),
+        people : $("input[name=people]").val()
+        };
+        //$(document).trigger('advanced_search', [advSearchValues]);
+       return advSearchValues;
+    }
+  
+      function loadPopupBox() {   // To Load the Popupbox
+        $('#popup_box').fadeIn("slow");
+        $("#map").css({ // this is just for style
+            "opacity": "0.3"  
+        });         
+    }
+
+   function getAdvancedSearchValues(eventName, data){
+   
+   }
+
+
     return {
         semanticWireAgent: semanticWireAgent,
         getClickPoint: getClickPoint
-    }
+}
 
 });

@@ -13,6 +13,7 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
 
 
         var phpRestURL = 'http://localhost/pasta/scripts/backend/'; 
+        var i;
 
         var values = {
             fillMe: "value",
@@ -21,7 +22,8 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
 
         $("body").html(fillTemplate(values));
 
-        var categories = ["All","Technology","Education","Business","Sport","Health","Entertainment"];        
+        var categories = ["All","Technology","Education","Business","Sport","Health","Entertainment"];    
+        var advancedSearch = ["Time filter", "Keyword", "People", "Place"];    
 
         // fill the list of links and put each of them into the DOM
         var linkValues = {
@@ -30,10 +32,20 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
 
         // linksContainer is saved in a local variable because each jquery call is very costly in terms of performance
         var linksContainer = $("#linksContainer");
-        for(var i = 0; i < categories.length; i++) {
+        for(i = 0; i < categories.length; i++) {
+            linkValues.linkID = "category" + (i + 1);
             linkValues.urlName = categories[i];
             linksContainer.append(fillSubPageTemplate(linkValues));
         }
+
+        var advancedSearchDiv = $("#advancedSearch");
+        for (i = 0; i < advancedSearch.length; i++){
+            linkValues.linkID = "advancedSearch" + (i + 1);
+            linkValues.urlName = advancedSearch[i];
+            advancedSearchDiv.append(fillSubPageTemplate(linkValues));
+        }
+
+        
 
         style.setStyle();
         semanticwire.getClickPoint();
@@ -46,8 +58,12 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
         return false;
         });
 
+
+       
+
     } //end of function render
 
+   
 
     return {
         render: render

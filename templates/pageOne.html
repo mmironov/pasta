@@ -9,16 +9,26 @@
 		<input type="button" class="left" id="favorites" />
 		<input type="button" class="left" id="settings" />
 	</form>
+	<div id="advancedSearch"></div>
 
 	<div id="pageOne" class="left">
 	Test {{ fillMe }}
 
 	 <div id="fullresponse"><span/></div>
-	 <div id="sales1Lastname"><span/></div>
 	 
 	</div>
 	
 </header>
+
+<div id="popup_box">
+	<p>Time filter: From <input type="text" name="timeFrom" placeholder="-7 days" /> To <input type="text" name="timeTo" placeholder="now" /><br />
+		Keyword: <input type="text" name="keyword" /><br />
+		People: <input type="text" name="people" /><br />
+		Place: <input type="text" name="place" />
+	</p>
+	<a id="popupBoxClose">Okaaay</a>	
+</div>
+
 <div id="map"></div>
 
 <div class="panel">
