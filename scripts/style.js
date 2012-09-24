@@ -1,36 +1,48 @@
 define(["jQuery", "text!templates/pageOne.html"], function($, pageone) {
 
+    var menuColors =["#9b3324", "#006821", "#ff0069", "#ff7b00", "#ffe61e", "#00aeff", "#5500a4", "#6a5849"]; 
+
+    function getMenuColors(eventName){
+        return menuColors;
+    }
+
     function setStyle(eventName){
         //style stuff    
-         var colors = ["#00a9ba", "#0b52a4", "#755fa7", "#ed0477", "#ec1b21", "#f58927", "#00a54f", "#646560"], state;
-         var colorsFrom = ["#00d0e8", "#4095f2", "#a496c5", "#fc67b1", "#f26f72", "#f9ad68", "#40ff9b", "#bfc0bc"];
-         var colorsTo = ["#0095a6", "#0b52a4", "#755fa7", "#ed0477", "#ec1b21", "#f58927", "#00a54f", "#646560"];
-         var temp;
-        state = 0;
-
-        $("#linksContainer a").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[7] +"), color-stop(99%," + colorsTo[7] + "))"});
-        $("#linksContainer a:nth-child(1)").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[0] +"), color-stop(99%," + colorsTo[0] + "))"});
-        $("#linksContainer a").click(function(){
-            state = $("#linksContainer a").index(this);
-            //the default - grey color
-            $("#linksContainer a").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[7] +"), color-stop(99%," + colorsTo[7] + "))"});
-            $("#linksContainer a:nth-child(" + (state + 1) + ")").css({"background" : "-webkit-gradient(linear, left top, left bottom, color-stop(0%," + colorsFrom[state] +"), color-stop(99%," + colorsTo[state] + "))"});
-        });
-
         
-    }
+        var i;
+        // #891ab6 - purple, coral - #ffcf6c
+        for (i = 0; i < menuColors.length; i++){
+            $("#linksContainer a:nth-child(" + (i + 1) + ")").css({"background" : menuColors[i]});
+        }
 
-    /*pop up code*/
-   
-        
-  
-    /*end of pop up code*/
+       var linksContainerA = $("#linksContainer a");
+        var maxLenLabel = $("#linksContainer a:nth-child(1)").width();
+               for (i = 1; i < menuColors.length; i++){
+                    if ($("#linksContainer a:nth-child(" + i + ")").width() > maxLenLabel){
+                        maxLenLabel = $("#linksContainer a:nth-child(" + i + ")").width()
+                    }
+               }
+
+     $('#linksContainer a').css({"width" : maxLenLabel});
+       
+    //     var originalFontSize = 14;
+    var sectionWidth = $('#linksContainer a').width();
+
+        $('#linksContainer a span').each(function(){
+               var spanWidth = $(this).width();
+
+               if (spanWidth < 0.8*sectionWidth){
+                $(this).css({"letter-spacing": "2px"});
+               }
+
+    //         var newFontSize = (sectionWidth/spanWidth) * originalFontSize;
+    //         $(this).css({"font-size" : newFontSize, "line-height" : newFontSize/1.4 + "px"});
+         });
+     }
 
     return {
-      
-        setStyle: setStyle
+        setStyle: setStyle,
+        getMenuColors: getMenuColors
     }
-
-
 
 });

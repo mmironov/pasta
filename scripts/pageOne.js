@@ -11,7 +11,6 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
     function render(eventName) {
         // create the whole page and put it into the DOM
 
-
         var phpRestURL = 'http://localhost/pasta/scripts/backend/'; 
         var i;
 
@@ -22,8 +21,7 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
 
         $("body").html(fillTemplate(values));
 
-        var categories = ["All","Technology","Education","Business","Sport","Health","Entertainment"];    
-        var advancedSearch = ["Time filter", "Keyword", "People", "Place"];    
+        var categories = ["All","Tech","Education","Business","Sport","Health","Fun"];   
 
         // fill the list of links and put each of them into the DOM
         var linkValues = {
@@ -38,19 +36,15 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
             linksContainer.append(fillSubPageTemplate(linkValues));
         }
 
-        var advancedSearchDiv = $("#advancedSearch");
-        for (i = 0; i < advancedSearch.length; i++){
-            linkValues.linkID = "advancedSearch" + (i + 1);
-            linkValues.urlName = advancedSearch[i];
-            advancedSearchDiv.append(fillSubPageTemplate(linkValues));
-        }
-
-        
+        linkValues.linkID = "advancedSearch1";
+        linkValues.urlName = 'Filters';
+         $("#advancedSearch").append(fillSubPageTemplate(linkValues));
 
         style.setStyle();
+        
         semanticwire.getClickPoint();
         semanticwire.semanticWireAgent();
-        
+
         //accordion effect
         $("#logo").click(function(){
         $(".panel").toggle("fast");
@@ -58,12 +52,7 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
         return false;
         });
 
-
-       
-
     } //end of function render
-
-   
 
     return {
         render: render

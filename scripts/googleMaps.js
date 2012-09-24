@@ -1,14 +1,14 @@
 define(["jQuery", "Handlebars", "MarkerClusterer", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
   function($, Handlebars, MarkerClusterer, pageoneTemplate, accordionPageTemplate) {
 
-  var map;
+  var map, drawingManager;
 
 function drawMap(eventName){
 
       // here we require the GMaps library and then we show the map
-        require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&language=en!callback"], function() {
+        require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&libraries=drawing&language=en!callback"], function() {
           var clickPoint=[];
-          var initialPoint = new google.maps.LatLng(42.389638,13.29269);
+          var initialPoint = new google.maps.LatLng(42.389638,13.29269); //to do - change with user's location
           var DEFAULT_ZOOM = 7; //3 to 8
           var myOptions = {
               center: initialPoint,
@@ -16,7 +16,9 @@ function drawMap(eventName){
               minZoom: DEFAULT_ZOOM - 4,
               maxZoom: DEFAULT_ZOOM + 1,
               mapTypeId: google.maps.MapTypeId.ROADMAP,
-              disableDefaultUI: true
+              disableDefaultUI: true,
+              zoomControl: true, //to do - to remove because it's only for pc version
+              zoomControlOptions: {position:google.maps.ControlPosition.LEFT_CENTER}
           };
 
           var styleArray = [
@@ -61,6 +63,24 @@ function drawMap(eventName){
         map = new google.maps.Map(document.getElementById(mapCanvas.attr("id")), myOptions);
         map.setOptions({styles:styleArray});
         google.maps.event.trigger(map, 'resize');
+
+        drawingManager = new google.maps.drawing.DrawingManager({
+        drawingControl: true,
+        drawingControlOptions: {
+          position: google.maps.ControlPosition.LEFT_CENTER,
+          drawingModes: [google.maps.drawing.OverlayType.CIRCLE]
+        },
+        circleOptions: {
+          fillColor: '#000000',
+          fillOpacity: 0.3,
+          strokeWeight: 2,
+          clickable: false,
+          zIndex: 1,
+          editable: true
+        }
+      });
+      drawingManager.setMap(map);
+        
 
 
           var goldStar = {
@@ -113,7 +133,7 @@ function drawMap(eventName){
 
         }); //end require
 
-  return map;
+  return [map, drawingManager];
 
 } //end function drawMap
 
