@@ -46,10 +46,10 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
         semanticwire.semanticWireAgent();
 
         //accordion effect
-        $("#logo").click(function(){
-        $(".panel").toggle("fast");
-       // $(this).toggleClass("active");
-        return false;
+        $("#newsArrow").click(function(){
+            $(".panel").toggle("fast");
+            $(this).toggleClass("active");
+            return false;
         });
 
     } //end of function render

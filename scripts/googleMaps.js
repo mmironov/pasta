@@ -57,7 +57,7 @@ function drawMap(eventName){
           var mapCanvas = this.$("#map");
           // the map must have static dimensions (that is, you cannot use percentages here)
           mapCanvas.css({
-              "width": $(document).width() + "px",
+              "width": ($(document).width()-17) + "px",
               "height": $(document).height() + "px"
           });
         map = new google.maps.Map(document.getElementById(mapCanvas.attr("id")), myOptions);

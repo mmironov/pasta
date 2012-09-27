@@ -6,7 +6,7 @@ require.config({
         text: '../libs/require/text-1.0.6',
         async: '../libs/require/async',
         Handlebars: '../libs/handlebars/Handlebars',
-        less: '../libs/less/less',
+        //less: '../libs/less/less',
         templates: '../templates',
         resources: '../resources'
     }

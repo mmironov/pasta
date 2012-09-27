@@ -9,13 +9,15 @@
     var filterUrl = baseUrl + "filters" + apiKey + extension; 
     var cityDisambiguatedUrl = baseUrl + "library/CityDisambiguated/sort:news_score/direction:desc/limit:20.json";
     var keywordUrl = baseUrl + "library/Tag/limit:1.json";
+    var pagination = "/limit:100/count:1";
     var urlPool, infoWindow, keyword, complexConditions;
     var i, j, advSearchData;
-    var keywordConditions= {}, dataRadiusFilter = {}, dataComplexFilter = {}, dataKeywordFilter ={}, dataCitiesFilter = {};
+    var keywordConditions= {}, dataRadiusFilter = {}, dataComplexFilter = {}, dataKeywordFilter ={}, dataCitiesFilter = {}, dataPoolFilter = {};
     var jsonNeighbourhood =[], jsonPlacesFilters = [], arrayOfCityIds = [];
     var state = 0; //state is for following which menu item is clicked - for example all/technologies/sport and etc
-    var pinColor, pinImage, pinShadow;
+    var pinColor, pinImage, pinShadow, citiesFilterID, accordionValues;
     var circlesArray = [], arrMarkers =[];
+    
 
     //creates the default filter for time (7 days) OR if we have advanced search values, it creates filter for "time" and "keyword"
     //if advanced search is used - the help function findAdvancedSearchIds() is used
@@ -119,101 +121,25 @@
         var googleMapsObjects = googleMaps.drawMap();
         var map = googleMapsObjects[0];
         var drawingManager = googleMapsObjects[1];
-        var circleOptions, lat, lng, circle, condPlacesAround;
+        var circleOptions, circle, condPlacesAround;
         var latNeighbour, lngNeighbour, idNeighbour, nameNeighbour, citiesConditions;
-        var accordionValues, key, initialPoint, flag;
+        var key, initialPoint, flag;
        
-        var documents = "documents/";
-        var pagination = "/limit:100/count:1";
-        var bodyAccordion = $("#bodyAccordion");
-        var clickNumber = 0;
+
+        // console.log(map.getCenter());
+        // console.log(map.getMapTypeId());
+        // console.log(map.getZoom());
+        // console.log(map.getBounds());
+
+        google.maps.event.addListener(map, 'bounds_changed', function() {
+          //console.log(map.getBounds());
+          invokeAll(map.getCenter(), map);
+        });
+        
 
         google.maps.event.addListener(map, 'click', function(event){
 
-        clickNumber++;
-        console.log(clickNumber);
-        //infoWindow.setContent('clicked' + event.latLng.lat()) ;
-
-        jsonNeighbourhood = [];
-        jsonPlacesFilters = [];
-
-        deleteAllMarkers();
-        deleteAllCircles();
-      
-        var screenRadius = distanceBetween2Points(map.getCenter().lat(), map.getCenter().lng(), map.getBounds().getNorthEast().lat(), map.getBounds().getNorthEast().lng());
-
-        map.panTo(event.latLng);
-       
-        
-        lat = Math.round((event.latLng.lat()) * 10000)/10000;
-        lng = Math.round((event.latLng.lng()) * 10000)/10000;
-
-       
-        makeRadiusCall(screenRadius, lat, lng);
-
-
-        //for testing
-        var help = '';
-        for (i in arrayOfCityIds){
-          help = help + arrayOfCityIds[i] + ",";
-        }
-        console.log(help);
-
-        complexFilterCreation();
-
-        var citiesFilterID = getCitiesFilterID();
-       
-        setMarkersCall(citiesFilterID, map);
-
          
-                 
-
-            // var news = 'The news for the last 7 days\n';
-            // for (i = 0; i < jsonNeighbourhood.length; i++){
-            //   news += jsonNeighbourhood[i].name + " - " + jsonPlacesFilters[i].newsCount + "\n"
-            // }
-            // alert(news);
-
-
-           // alert(Data.length);
-                
-            // var maxNews = 0;
-            // for (i = 0; i < jsonPlacesFilters.length - 1; i++){
-            //   maxNews = jsonPlacesFilters[0].newsCount;
-            //   for(j = i + 1; j < jsonPlacesFilters.length; j++){
-            //     if (jsonPlacesFilters[j].newsCount > maxNews){
-            //       maxNews = jsonPlacesFilters[j].newsCount;
-            //     }
-            //   }
-            // }
-
-            // for (i = 0; i < jsonPlacesFilters.length; i++){
-            //   if (maxNews == jsonPlacesFilters[i].newsCount){
-            //     urlPool = baseUrl + documents + jsonPlacesFilters[i].filter + pagination + apiKey + extension;
-            //   }
-            // }
-            
-            // http://www.semanticwire.com/api/v2.1/documents/4fff5277-8e6c-433a-aee7-19dfc0a8007b/limit:10000/count:1/api_key:4fc54b75-06dc-4d64-935e-39eec0a8017b.json
-
-             // news pool
-            //   $.ajax({
-            //     url:urlPool,
-            //     async:false,
-            //     success: function(data){ Data = data.data;},
-            //     dataType:"json"
-            //   });
-
-            // console.log(Data[0].Document.description);
-            // for(i = 0; i < Data.length; i++){
-            //     accordionValues = {
-            //         article: Data[i].Document.title,
-            //         articleBody: Data[i].Document.description,
-            //         url: Data[i].Document.url
-            //     };
-            //     accordionValues.accItemId = "acc" + i;
-            //     bodyAccordion.append(fillAccordionPageTemplate(accordionValues));
-            // }
-
         });//end event listener - click
 
 
@@ -233,20 +159,50 @@
           makeRadiusCall(radius, circle.getCenter().lat(), circle.getCenter().lng());
           complexFilterCreation();
 
-          var citiesFilterID = getCitiesFilterID();
+          citiesFilterID = getCitiesFilterID();
           setMarkersCall(citiesFilterID, map);          
-
 
         });
 
          google.maps.event.addListener(drawingManager, 'drawingmode_changed', function(){
-          //removing previous circles if any
           deleteAllCircles();
           deleteAllMarkers();
         });
       
       }); //end require
     } //end function getClickPoint
+
+    function invokeAll(center, map){
+
+      var citiesFilterID, lat, lng;
+
+      jsonNeighbourhood = [];
+      jsonPlacesFilters = [];
+
+      deleteAllMarkers();
+      deleteAllCircles();
+    
+      //to do - better approximation than that
+      var screenRadius = distanceBetween2Points(map.getCenter().lat(), map.getCenter().lng(), map.getBounds().getNorthEast().lat(), map.getBounds().getNorthEast().lng());
+
+      map.panTo(center);
+      lat = Math.round((center.lat()) * 10000)/10000;
+      lng = Math.round((center.lng()) * 10000)/10000;
+
+      makeRadiusCall(screenRadius, lat, lng);
+
+      //for testing
+      var help = '';
+      for (i in arrayOfCityIds){
+        help = help + arrayOfCityIds[i] + ",";
+      }
+      console.log(help);
+
+      complexFilterCreation();
+      citiesFilterID = getCitiesFilterID();
+      setMarkersCall(citiesFilterID, map);
+      fetchNews(citiesFilterID);
+    }
 
     function makeRadiusCall(radius, latitude, longitude){
        condPlacesAround =  {"conditions":{
@@ -256,8 +212,7 @@
             //"min_news_score": minNewsScore
             }};
 
-        alert('radius is (km)' + radius);
-        alert('radius is (mi)' + radius*0.62);
+        console.log('radius (km)' + radius + "radius (miles)" + radius*0.62);
 
         arrayOfCityIds = []; 
 
@@ -332,6 +287,30 @@
     
      });
 
+    }
+
+    function fetchNews(citiesFilterID){
+      var bodyAccordion = $("#bodyAccordion");
+       urlPool = baseUrl + "documents/" + citiesFilterID + pagination + apiKey + extension;
+          $.ajax({
+                url:urlPool,
+                async:false,
+                success: function(data){ dataPoolFilter = data.data;},
+                dataType:"json"
+              });
+       console.log(dataPoolFilter[0].Document.description);
+    
+
+            // console.log(Data[0].Document.description);
+            for(i = 0; i < dataPoolFilter.length; i++){
+                accordionValues = {
+                    article: dataPoolFilter[i].Document.title,
+                    articleBody: dataPoolFilter[i].Document.description.replace(/<(SPAN|IMG|A|BR|P|H1|H­ 2){1}.*>/i,'') ,
+                    url: dataPoolFilter[i].Document.url
+                };
+                accordionValues.accItemId = "acc" + i;
+                bodyAccordion.append(fillAccordionPageTemplate(accordionValues));
+            }
     }
 
     function deleteAllMarkers(){

@@ -9,18 +9,19 @@ body{
 	/*font-family:"museo Sans 500";*/
 	font-family:"Verdana";
 	font-size:14px
+	background-color:#EBE6DC;
 }
 
 header{
-	position: fixed;
+	/*position: fixed;*/
 	z-index:100;
 	width:100%;
 	background-color: #ebe6dc;
 }
-div#logo{
+/*div#logo{
 	width:45px;
 	height:45px;
-}
+}*/
 
 div#pageOne{
 	margin:0 3px;
@@ -34,10 +35,10 @@ box-orient:horizontal;
 box-pack:center;
 box-align:center;*/
 }
+	
 	#linksContainer a, #advancedSearch a{
 		text-decoration:none;
 		text-align:center;
-		/*width:60px;*/
 		width:auto;
 		min-width:45px;
 		font-size: 13px;
@@ -49,15 +50,12 @@ box-align:center;*/
 		color:#fff;
 		text-shadow: 1px 1px 0px #444444;
 	}
-	/*#linksContainer a:first-child{
-		background: -webkit-gradient(linear, left top, left bottom, from(#00d0e8), to(#0095a6));
-	}*/
 	#linksContainer a:last-child{
 		border-right:none;
 	}
 .left
 {
-	float:left;
+	/*float:left;*/
 }
 
 .css3_accordion div {
@@ -78,7 +76,7 @@ box-align:center;*/
 	width:30%;
 }*/
 
-.accordion a { 
+.accordion >a { 
 	display:block; 
 	background-color:#646560; 
 	color:#fff; 
@@ -95,7 +93,7 @@ box-align:center;*/
 position: fixed;
 top: 53px;
 right: 0;
-display: none;
+/*display: none;*/
 background: #000;
 border:1px solid #111111;
 width: 30%;
@@ -110,8 +108,8 @@ header{
 }
 
 #map{
-	position: fixed;
-	/*margin-top:45px;*/
+	/*position: fixed;
+	margin-top:45px;*/
 
 }
 
@@ -146,7 +144,8 @@ header{
 	top:5px;  
 	position:absolute;  
 	color:#646560;  
-	font-weight:500;  	
+	font-weight:500;
+	text-decoration: none;  	
 }
 
 /*markers*/
@@ -163,4 +162,18 @@ header{
      white-space: nowrap;
    }
 
+   #newsArrow
+   {
+   	width:50px;
+   	height:50px;
+   	background-image: url('../resources/newsArrow.png');
+   	top:100px;
+   	right:0px;
+   	position:fixed;
+   	z-index:1;
+   }
+
+   #newsArrow.active{
+   	background-image: url('../resources/newsArrowClose.png');
+   }
 

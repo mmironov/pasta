@@ -161,7 +161,8 @@ body {
   font-size: 13px;
   line-height: 18px;
   color: #333333;
-  background-color: #ffffff;
+  /*background-color: #ffffff; editted by Kristina*/ 
+  background-color: #EBE6DC;
 }
 
 a {
