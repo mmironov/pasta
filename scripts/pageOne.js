@@ -10,6 +10,12 @@ define(["jQuery", "Handlebars", "style", "googleMaps", "semanticwire", "text!tem
 
     function render(eventName) {
         // create the whole page and put it into the DOM
+        var i;
+        var values = {
+            fillMe: "value",
+            imgSrc: "./resources/logo.png"
+        };
+        $("body").html(fillTemplate(values));
 
         var categories = ["All","Tech","Education","Business","Sport","Health","Fun", "Filters"];   
 

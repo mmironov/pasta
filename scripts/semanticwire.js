@@ -1,5 +1,5 @@
- define(["jQuery", "Handlebars", "style", "googleMaps", "MarkerClusterer", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
-  function($, Handlebars, style, googleMaps, MarkerClusterer, pageoneTemplate, accordionPageTemplate) {
+ define(["jQuery", "Handlebars", "style", "googleMaps", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
+  function($, Handlebars, style, googleMaps, pageoneTemplate, accordionPageTemplate) {
 
     var fillAccordionPageTemplate = Handlebars.compile(accordionPageTemplate);
     var fillTemplate = Handlebars.compile(pageoneTemplate);
@@ -380,7 +380,7 @@
              shadow: pinShadow,
             // labelAnchor: new google.maps.Point(20, 0),
              labelClass: "labels", // the CSS class for the label
-             labelStyle: {opacity: 0.75},
+             labelStyle: {opacity: 1},
              labelContent: jsonPlacesFilters[i].newsCount
             });
             arrMarkers.push(marker);

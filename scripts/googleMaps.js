@@ -1,5 +1,5 @@
-define(["jQuery", "Handlebars", "MarkerClusterer", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
-  function($, Handlebars, MarkerClusterer, pageoneTemplate, accordionPageTemplate) {
+define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
+  function($, Handlebars, pageoneTemplate, accordionPageTemplate) {
 
     var map, drawingManager, path, canvasProjectionOverlay, circleBound,  polygon;
     var canvas, context, paint;
