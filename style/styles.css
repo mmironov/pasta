@@ -14,48 +14,38 @@ body{
 
 header{
 	/*position: fixed;*/
-	z-index:100;
+	z-index:3;
 	width:100%;
 	background-color: #ebe6dc;
+	margin:0;
 }
-/*div#logo{
-	width:45px;
-	height:45px;
-}*/
 
 div#pageOne{
 	margin:0 3px;
 }
 
-#linksContainer
-{
-/* not working....
-display:box;
-box-orient:horizontal;
-box-pack:center;
-box-align:center;*/
+
+#linksContainer a, #advancedSearch a{
+	text-decoration:none;
+	text-align:center;
+	width:auto;
+	min-width:45px;
+	font-size: 13px;
+	height:45px;
+	line-height:45px;
+	padding:0 3px;
+	float:left;
+	background-color:#646560;
+	color:#fff;
+	text-shadow: 1px 1px 0px #444444;
 }
-	
-	#linksContainer a, #advancedSearch a{
-		text-decoration:none;
-		text-align:center;
-		width:auto;
-		min-width:45px;
-		font-size: 13px;
-		height:45px;
-		line-height:45px;
-		padding:0 3px;
-		float:left;
-		background-color:#646560;
-		color:#fff;
-		text-shadow: 1px 1px 0px #444444;
-	}
-	#linksContainer a:last-child{
-		border-right:none;
-	}
-.left
-{
-	/*float:left;*/
+
+#linksContainer a:last-child{
+	border-right:none;
+}
+
+.left{
+	float:left;
 }
 
 .css3_accordion div {
@@ -65,10 +55,12 @@ box-align:center;*/
 	background-color:#bfc0bc;
 	width:30%;
 }
+
 .css3_accordion div:target {
  	height: auto;
  	width:100%;
 }
+
 /*div.css3_accordion a{
 	text-decoration:none;
 	color:#fff;
@@ -76,7 +68,7 @@ box-align:center;*/
 	width:30%;
 }*/
 
-.accordion >a { 
+.accordion > a { 
 	display:block; 
 	background-color:#646560; 
 	color:#fff; 
@@ -85,47 +77,59 @@ box-align:center;*/
 	border-bottom:1px solid #fff;
 	min-height:44px;
 }
+
+.accordion > a:hover{
+	color:#fff;
+}
+
+.accordion a:hover{
+	text-decoration: none;
+}
+
 .accordion div p { 
 	padding:20px;
 }
 
 .panel {
-position: fixed;
-top: 53px;
-right: 0;
-/*display: none;*/
-background: #000;
-border:1px solid #111111;
-width: 30%;
-height: 500px;
-padding: 30px;
-filter: alpha(opacity=85);
-opacity: .85;
+	position: fixed;
+	top: 53px;
+	right: 0;
+	/*display: none;*/
+	background: #000;
+	border:1px solid #111111;
+	width: 30%;
+	/*height:auto;*/
+	height: 90%;
+	padding: 5px 25px;
+	/*filter: alpha(opacity=85);*/
+	opacity: .90;
+	z-index:3;
+	overflow:auto;
 }
 
-header{
+.panel h6{
+	text-align: center;
 	margin:0;
+	font-size: 11px;
+	color:#00c42f;
 }
 
 #map{
+	opacity:1;
+	z-index:1;
 	/*position: fixed;
 	margin-top:45px;*/
-
 }
 
-/*pop up styles*/
-#popup_box { 
-	display:none; /* Hide the DIV */
-	position:fixed;  
-	_position:absolute; /* hack for internet explorer 6 */  
-	height:auto;  
-	width:auto;  
-	background:#FFFFFF;  
-	left: 300px;
-	top: 150px;
-	z-index:1;
-	margin-left: 15px;  
-	
+.alerts{
+	display:none;
+	position:fixed;
+	height: auto;
+	width: auto;
+	z-index: 2;
+	left:300px;
+	top:150px;
+	background:#FFFFFF; 
 	/* additional features, can be omitted */
 	border:2px solid #646560;  	
 	padding:15px;  
@@ -133,12 +137,28 @@ header{
 	-moz-box-shadow: 0 0 5px #646560;
 	-webkit-box-shadow: 0 0 5px #646560;
 	box-shadow: 0 0 5px #646560;
-	
+}
+
+/*pop up styles*/
+#popup_box { 
+	/*_position:absolute;  hack for internet explorer 6 */  
+	margin-left: 15px;  
+	text-align: right;	
+}
+
+#popup_box input{
+	margin-top:2px;
+}
+
+#popup_box p {
+	margin:0 auto;
+	width:50%;
+	display:inline;
 }
 
 /* This is for the positioning of the Close Link */
 #popupBoxClose {
-	font-size:20px;  
+	font-size:15px;  
 	line-height:15px;  
 	right:5px;  
 	top:5px;  
@@ -148,15 +168,21 @@ header{
 	text-decoration: none;  	
 }
 
+#buttonWrap{
+	text-align: center;
+}
+
 /*markers*/
  .labels {
-     color: #ff0000;
-     background-color: white;
+     color: #fff;
+     background-color: #00c42f;
+     border-radius: 15px;
      font-family: "Lucida Grande", "Arial", sans-serif;
      font-size: 12px;
      font-weight: bold;
      text-align: center;
      width: auto;
+     min-width: 20px;
      height:auto;     
      border: 2px solid black;
      white-space: nowrap;
@@ -170,10 +196,74 @@ header{
    	top:100px;
    	right:0px;
    	position:fixed;
-   	z-index:1;
+   	z-index:4;
    }
 
    #newsArrow.active{
    	background-image: url('../resources/newsArrowClose.png');
    }
 
+   #drawMode{
+   	width:50px;
+   	height:50px;
+   	background-image:url('../resources/draw.png');
+   	top:50px;
+   	left:0px;
+   	position:fixed;
+   	z-index:4;
+   }
+
+   #drawModeClear{
+   	background-image: url('../resources/draw_clear.png');
+   	top:100px;
+   	left:0px;
+   	position:fixed;
+   	z-index:4;
+   	width:50px;
+   	height:50px;
+   	display:none;
+   }
+
+   #noDataMessage{
+   	text-align: center;
+   }
+
+   #noDataMessage button{
+   	margin-top:10px;
+   }
+
+   #amount{
+   	border:0px;
+   }
+
+   #canvas{
+   	display:none;
+	position:fixed;
+	z-index:2;
+	background-color: #000000;
+	opacity:0.8;
+	margin-top:45px;
+   }
+
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment  {
+	height: 30px;
+	display: block;
+	background-color: transparent;
+}
+::-webkit-scrollbar-track-piece  {
+	background-color: #3b3b3b;
+	-webkit-border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:vertical {
+	height: 50px;
+	background-color: #666;
+	border: 1px solid #000;
+	-webkit-border-radius: 6px;
+}

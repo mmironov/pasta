@@ -1,45 +1,43 @@
 <header>
-	<!--<img src={{imgSrc}} alt="logo" class="left" id="logo" />-->
-	<div class="left" id="logo" />
-
 	<nav>
 		<div id="linksContainer" class="left"></div>
 	</nav>
-
-	<div id="advancedSearch"></div>	
-
-	<div id="pageOne" class="left">
-	 {{ fillMe }}
-
-	 <div id="fullresponse"><span/></div>
-    <i class="icon-user"></i> Username 
-	</div>
-
-	
 </header>
 
-<div id="popup_box">
-	<p>Time filter: From <input type="text" name="timeFrom" placeholder="-7 days" /> To <input type="text" name="timeTo" placeholder="now" /><br />
-		Keyword: <input type="text" name="keyword" /><br />
-		People: <input type="text" name="people" /><br />
-		Place: <input type="text" name="place" />
-	</p>
+<div id="drawMode"></div>
+<div id="drawModeClear"></div>
+
+<div id="popup_box" class="alerts">
+	<form>
+		<p>Keyword:</p> <input class="input-medium" type="text" name="keyword" /><br />
+		<p>People:</p> <input class="input-medium" type="text" name="people" /><br />
+		<p>Place:</p> <input class="input-medium" type="text" name="place" /><br />
+		Time range: <input class="input-medium" type="text" id="amount" readonly />
+		<div id="slider"></div>
+	</form>
+	<div id="buttonWrap"><button class="btn btn-mini btn-info">Search</button></div>
 	<a id="popupBoxClose">x</a>	
 </div>
 
-<div id="newsArrow"></div>
-<!--<div class="alert fade in left">
-	<button type="button" class="close" data-dismiss="alert">x</button>
-	<stong>Holy guakamole</strong> 
-</div>-->
 
+<div id="noDataMessage" class="alerts">
+	<stong>I'm sorry sunshine, no data is available.<br /> Why don't you try something else?</strong><br />
+	<button class="btn btn-info btn-mini">Okay</button> 
+</div>
+
+<canvas id="canvas" width="1366" height="624"></canvas>
 <div id="map"></div>
 
-<div class="panel">
-	<div id="headAccordion"></div>	
-	<div class="css3_accordion accordion" id="bodyAccordion"></div>
-</div>
+
+<div id="newsArrow" class="active"></div>
+<div id="accordion">
 	
+	<div class="panel"> 
+		<h6>{{numberOfNews}}</h6>
+		<div id="headAccordion"></div>	
+		<div class="css3_accordion accordion" id="bodyAccordion"></div>
+	</div>
+</div>
 
 
     <!-- Le javascript
