@@ -8,7 +8,7 @@
 body{
 	/*font-family:"museo Sans 500";*/
 	font-family:"Verdana";
-	font-size:14px
+	font-size:14px;
 	background-color:#EBE6DC;
 }
 
@@ -20,7 +20,7 @@ header{
 	margin:0;
 }
 
-div#pageOne{
+div#content{
 	margin:0 3px;
 }
 
@@ -38,6 +38,7 @@ div#pageOne{
 	background-color:#646560;
 	color:#fff;
 	text-shadow: 1px 1px 0px #444444;
+	z-index:1000000;
 }
 
 #linksContainer a:last-child{
@@ -48,7 +49,7 @@ div#pageOne{
 	float:left;
 }
 
-.css3_accordion div {
+.css3_accordion > div {
 	height: 0;
 	overflow: hidden;
 	-webkit-transition: height 500ms ease; 
@@ -99,7 +100,7 @@ div#pageOne{
 	border:1px solid #111111;
 	width: 30%;
 	/*height:auto;*/
-	height: 90%;
+	height: 88%;
 	padding: 5px 25px;
 	/*filter: alpha(opacity=85);*/
 	opacity: .90;
@@ -112,6 +113,16 @@ div#pageOne{
 	margin:0;
 	font-size: 11px;
 	color:#00c42f;
+}
+
+#bodyAccordion img{
+	/*width:40px;
+	height:40px;*/
+}
+
+.fullArticleAndShare{
+	float:right;
+	margin:4px;
 }
 
 #map{
@@ -157,7 +168,7 @@ div#pageOne{
 }
 
 /* This is for the positioning of the Close Link */
-#popupBoxClose {
+#popupBoxClose, #configClose {
 	font-size:15px;  
 	line-height:15px;  
 	right:5px;  
@@ -267,3 +278,80 @@ div#pageOne{
 	border: 1px solid #000;
 	-webkit-border-radius: 6px;
 }
+
+#flipbox{
+	width:90%;
+	height:90%;
+	
+	position:fixed;
+	/*left:600px;*/
+}
+
+#configuration{
+	width:30%;
+	height:auto;
+	position:fixed;
+	display:none;
+	left:50px;
+	top:50px;
+	z-index:10;
+	background-color: #000;
+	opacity:0.9;
+	color:#fff;
+	padding:5px;
+}
+
+#settings, #flipBack{
+	width:45px;
+	height:45px;
+	position:fixed;
+	top:0px;
+	left:510px;
+	z-index:10;
+	background-image: url(../resources/settings.png);
+}
+
+#sliderMapType{
+	width:75px;
+	position:absolute;
+	top:40px;
+	right:70px;
+}
+
+ #sliderNewsPanel{
+ 	width:50px;
+ 	position:absolute;
+ 	top:110px;
+ 	right:95px;
+ }
+
+ #sliderTimeRange{
+ 	width:125px;
+ 	position:absolute;
+ 	top:180px;
+ 	right:20px;
+ }
+
+#configuration p {
+  	margin:0;
+  }
+
+#configuration > p {
+	color:#00c42f;
+	display:inline;
+}
+
+#configuration a{
+	color:#00c42f;
+}
+
+#configuration form{
+	margin:5px 0;
+}
+
+#configButton{
+	position:absolute;
+	bottom:30px;
+	right:10px;
+}
+ 

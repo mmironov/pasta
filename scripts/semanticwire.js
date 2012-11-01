@@ -1,32 +1,34 @@
- define(["jQuery", "Handlebars", "style", "googleMaps", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
-  function($, Handlebars, style, googleMaps, pageoneTemplate, accordionPageTemplate) {
+ //contains semantic wire and google maps manipulation functionality
+ define(["jQuery", "Handlebars", "style", "config", "googleMaps", "text!templates/content.html", "text!templates/accordionPage.html"], 
+  function($, Handlebars, style, config, googleMaps, contentTemplate, accordionPageTemplate) {
 
     var fillAccordionPageTemplate = Handlebars.compile(accordionPageTemplate);
-    var fillTemplate = Handlebars.compile(pageoneTemplate);
-
+    //var fillTemplate = Handlebars.compile(contentTemplate);
+    
     var apiKey = "/api_key:4fc54b75-06dc-4d64-935e-39eec0a8017b";
     var baseUrl = "http://www.semanticwire.com/api/v2.1/";
     var extension = ".json";
     var filterUrl = baseUrl + "filters" + apiKey + extension; 
     var cityDisambiguatedUrl = baseUrl + "library/CityDisambiguated/sort:news_score/direction:desc/limit:20" + apiKey + extension;
     var pagination = "/limit:100/count:1";
-    var urlPool, infoWindow, keyword, complexConditions, center, noDataAlertIsActive, polygon;
-    var i, j, advSearchData, opacity = 1;
+    var urlPool, infoWindow, keyword, complexConditions, center, noDataAlertIsActive, polygon, map;
+    var i, j, advSearchData, placeSearch = false;
     var advSearchConditions= {}, dataRadiusFilter = {}, dataComplexFilter = {}, dataKeywordFilter ={}, dataCitiesFilter = {}, dataPoolFilter = {};
     var jsonNeighbourhood =[], jsonPlacesFilters = [], arrayOfCityIds = [], arrayOfCityIdsLong =[], polyArr = [];
     var state = 0; //state is for following which menu item is clicked - for example all/technologies/sport and etc
-    var pinColor, pinImage, pinShadow, citiesFilterID, accordionValues, timeRangeValues = {};
+    var pinColor, pinImage, pinShadow, citiesFilterID, accordionValues;
     var circlesArray = [], arrMarkers =[];
 
     //do all the work
     function semanticWireAgent(eventName){
 
-      setSlider();
-                
+      config.setSlider();
+      flip();          
+
       require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&libraries=drawing,geometry&language=en!callback"], function() {
 
         var googleMapsObjects = googleMaps.drawMap();
-        var map = googleMapsObjects[0];
+        map = googleMapsObjects[0];
         var drawingManager = googleMapsObjects[1];
         var canvasProjectionOverlay = googleMapsObjects[2];
         var circleOptions, circle, condPlacesAround;
@@ -39,82 +41,91 @@
         // console.log(map.getBounds());
 
         google.maps.event.addListenerOnce(map, 'idle', function(){
-          invokeAll(map);
-       });
+          invokeAll();
+        });
 
-      var canvas = document.getElementById('canvas');
-      var context = canvas.getContext('2d');
-      canvas.addEventListener('mouseup', ev_mouseup, false);
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        canvas.addEventListener('mouseup', ev_mouseup, false);
 
-      function ev_mouseup(ev){
-         drawingPoly();
-      } //end mouse up event
-      
-      function drawingPoly(){
-        var googleObjectsDraw = googleMaps.returnCircle();
-        var circle = googleObjectsDraw[0];
-        polygon = googleObjectsDraw[1];
-        polyArr.push(polygon);
+        function ev_mouseup(ev){
+           drawingPoly();
+        } //end mouse up event
+        
+        function drawingPoly(){
+          var googleObjectsDraw = googleMaps.returnCircle();
+          var circle = googleObjectsDraw[0];
+          polygon = googleObjectsDraw[1];
+          polyArr.push(polygon);
 
-        jsonNeighbourhood = [];
-        jsonPlacesFilters = [];
-        deleteAllMarkers();
+          map.setCenter(circle.getCenter());
+          map.panTo(circle.getCenter());
 
-        callCircleNews(circle, circle.getRadius(), circle.getCenter().lat(), circle.getCenter().lng()); 
+          jsonNeighbourhood = [];
+          jsonPlacesFilters = [];
+          deleteAllMarkers();
 
-        //we have to filter all the cities that are outside the drawn area
-        var toDelete = [];
-        for(i = 0; i < jsonNeighbourhood.length; i++){
-          var point = new google.maps.LatLng(jsonNeighbourhood[i].latitude, jsonNeighbourhood[i].longitude);
-          if (!google.maps.geometry.poly.containsLocation(point, polygon)) {
-            toDelete.push(i);
+          callCircleNews(map, circle, circle.getRadius(), circle.getCenter().lat(), circle.getCenter().lng()); 
+
+          //we have to filter all the cities that are outside the drawn area
+          var toDelete = [];
+          for(i = 0; i < jsonNeighbourhood.length; i++){
+            var point = new google.maps.LatLng(jsonNeighbourhood[i].latitude, jsonNeighbourhood[i].longitude);
+            if (!google.maps.geometry.poly.containsLocation(point, polygon)) {
+              toDelete.push(i);
+            }
           }
-        }
       
-        for (i = toDelete.length-1; i >= 0; i--){
-          jsonNeighbourhood.splice(toDelete[i],1);
-        }
-       
-        arrayOfCityIds = [];
-        for(i = 0; i < jsonNeighbourhood.length; i++){
-          arrayOfCityIds.push(jsonNeighbourhood[i].id);
-        }
+          for (i = toDelete.length-1; i >= 0; i--){
+            jsonNeighbourhood.splice(toDelete[i],1);
+          }
+         
+          arrayOfCityIds = []; arrayOfCityIdsLong = [];
+          for(i = 0; i < jsonNeighbourhood.length; i++){
+            arrayOfCityIds.push(jsonNeighbourhood[i].id);
+            arrayOfCityIdsLong.push({"id": jsonNeighbourhood[i].id, "min_relevance" : 25});
+          }
 
-        citiesFilterID = getCitiesFilterID();
-        setMarkers(citiesFilterID, map);
-        fetchNews(citiesFilterID);   
-      }
+          citiesFilterID = getCitiesFilterID();
+          setMarkers(citiesFilterID, map);
+          fetchNews(citiesFilterID);   
+        } //end drawingPoly()
 
-       $('#linksContainer  [id^="category"]').on("click", function(){
+        $('#linksContainer [id^="category"]').on("click", function(){
           if (circleDrawnBool) {
-            callCircleNews(circleDrawn, circleDrawn.getRadius(), circleDrawn.getCenter().lat(), circleDrawn.getCenter().lng());
+            console.log("cl1");
+            callCircleNews(map, circleDrawn, circleDrawn.getRadius(), circleDrawn.getCenter().lat(), circleDrawn.getCenter().lng());
             citiesFilterID = getCitiesFilterID();
             setMarkers(citiesFilterID, map);
             fetchNews(citiesFilterID);
           }
           if (typeof(polyArr[0]) === 'undefined' && !circleDrawnBool){
-            invokeAll(map);
+            console.log("cl2");
+            invokeAll();
           }
           if (typeof(polyArr[0]) !== 'undefined'){
+            console.log("cl3");
             drawingPoly();
           }
         });
 
-        $('#buttonWrap button').click( function() {         
-          advSearchData = unloadPopupBox();
-          invokeAll(map);
+        $('#buttonWrap button').click( function() {   
+          $('#popup_box').fadeOut("slow");
+          advSearchData = config.unloadPopupBox();
+          invokeAll();
         });
     
         $("#drawMode").bind("click", drawModeEvent);
         $("#drawModeClear").bind("click", function(){
           $(this).css("display","none");
           drawModeEvent();
-          invokeAll(map);
+          //invokeAll();
         });
 
         function drawModeEvent(){
           if (typeof(polyArr[0]) !== 'undefined') {
-            polygon.setMap(null);
+            //polygon.setMap(null);
+            deletePolygon();
             deleteAllMarkers();
             deleteAllCircles();
             deleteNews();
@@ -125,13 +136,15 @@
             deleteNews();
           }
         }
-  
+    
         google.maps.event.addListener(drawingManager, 'circlecomplete', function(circle) {
           drawingManager.setOptions({drawingMode: null});
 
           circleDrawn = circle;
+          map.setCenter(circleDrawn.getCenter());
+          map.panTo(circleDrawn.getCenter());          
           circleDrawnBool = true;
-          callCircleNews(circleDrawn, circleDrawn.getRadius(), circleDrawn.getCenter().lat(), circleDrawn.getCenter().lng());
+          callCircleNews(map, circleDrawn, circleDrawn.getRadius(), circleDrawn.getCenter().lat(), circleDrawn.getCenter().lng());
           citiesFilterID = getCitiesFilterID();
           setMarkers(citiesFilterID, map);
           fetchNews(citiesFilterID);
@@ -146,7 +159,7 @@
       }); //end require
     } //end function semanticWireAgent
 
-    function invokeAll(map){
+    function invokeAll(){
       var citiesFilterID, lat, lng;
       noDataAlertIsActive = false;
       center = map.getCenter();
@@ -155,9 +168,9 @@
       jsonPlacesFilters = [];
 
       deleteAllMarkers();
-      deleteAllCircles();
+      //deleteAllCircles();
     
-      complexFilterCreation(map);
+      complexFilterCreation();
 
       //to do - better approximation than that
       var screenRadius = googleMaps.distanceBetween2Points(map.getCenter().lat(), map.getCenter().lng(), map.getBounds().getNorthEast().lat(), map.getBounds().getNorthEast().lng());
@@ -167,46 +180,65 @@
       lng = Math.round((center.lng()) * 10000)/10000;
 
       if (dataComplexFilter){
-        makeRadiusCall(screenRadius, lat, lng);
+        if (!placeSearch) {
+          makeRadiusCall(screenRadius, lat, lng);
 
-        //for testing
-        var help = '';
-        for (i in arrayOfCityIds){help = help + arrayOfCityIds[i] + ",";}console.log("ids of the cities" + help);
-   
-        citiesFilterID = getCitiesFilterID();
-        setMarkers(citiesFilterID, map);
-        fetchNews(citiesFilterID);
+          //for testing
+          var help = '';
+          for (i in arrayOfCityIds){help = help + arrayOfCityIds[i] + ",";}console.log("ids of the cities" + help);
+     
+          citiesFilterID = getCitiesFilterID();
+          setMarkers(citiesFilterID, map);
+          fetchNews(citiesFilterID);
+        }
+        else{
+          arrayOfCityIds = [dataKeywordFilter[0].CityDisambiguated.id];
+          setMarkers(dataComplexFilter.Filter.id, map);
+          fetchNews(dataComplexFilter.Filter.id);
+        }
       }
       else{
         noDataAlert();
-        deletePolygon();
-        deleteAllCircles();
       }
     }
 
 //_____________________________
-//main functionality functions:
+//main functions:
 //*****************************
 
     //creates the default filter for time (7 days by def) OR if we have advanced search values, it creates filter for "time" and "keyword"\
-    function complexFilterCreation(map){
+    function complexFilterCreation(){
+      var  startDate, endDate;
+
+      config.config();
+      //checking configuration options (if set by the user) first
+      if (window.localStorage.getItem("configValues")){
+        configValues = JSON.parse(window.localStorage.getItem("configValues"));
+        startDate = configValues.timeRange.from;
+        endDate = configValues.timeRange.to;
+        console.log("start " + startDate + " end " + endDate);
+      }
+      else{
+        startDate = "-7 days";
+        endDate = "now";
+      }
 
       noDataAlertIsActive = false;
 
       if ((advSearchData == null) && (state == 0)){
-        complexConditions = {"Filter": {"start_date": "-7 days","end_date": "now"}}
+        complexConditions = {"Filter": {"start_date": startDate,"end_date": endDate}}
       }
       else{
         var conditions = {"and":{}}
-        var fromDate, toDate, noData = false;
+        var noData = false;
         
         if (advSearchData != null){ 
           //example of sophisticated filter {"Filter": {"start_date":"-7 days", "end_date":"now", 
           //"conditions": {"and":{"Tag":{"id":"46922"}, "Topic":[{"id":3}, {"id":8}, {"id":14}]}}}}
 
           if ((advSearchData.timeFilterFrom != "") && (advSearchData.timeFilterTo != "")){ 
-            fromDate = advSearchData.timeFilterFrom;
-            toDate = advSearchData.timeFilterTo;
+            startDate = advSearchData.timeFilterFrom;
+            endDate = advSearchData.timeFilterTo;
           }
 
           var advSearchType = ["Tag", "PersonDisambiguated", "CityDisambiguated"];
@@ -226,16 +258,18 @@
             
             findAdvancedSearchIds(advSearchType[2], advSearchData.place + "%");
             if (dataKeywordFilter[0]){
+              placeSearch = true;
               center = new google.maps.LatLng(dataKeywordFilter[0].CityDisambiguated.latitude, dataKeywordFilter[0].CityDisambiguated.longitude);
+              console.log(center);
               map.setCenter(center);
               map.panTo(center);
               conditions.and["CityDisambiguated"] = {};
               conditions.and.CityDisambiguated["id"] = dataKeywordFilter[0].CityDisambiguated.id;
+              jsonNeighbourhood.push({latitude: dataKeywordFilter[0].CityDisambiguated.latitude, longitude: dataKeywordFilter[0].CityDisambiguated.longitude, id: dataKeywordFilter[0].CityDisambiguated.id, name: dataKeywordFilter[0].CityDisambiguated.name });
             }
             else{
               noData = true;
             }
-            
           }
 
           if (advSearchData.people != ""){
@@ -250,11 +284,6 @@
             }
           }
         } //end if (advSearchData != null)
-
-        if ((fromDate == null) && (toDate == null)){
-            fromDate = "- 7 days";
-            toDate = "now";
-        }
 
         if (state != 0){ //state is the chosen menu item - all, sport, fun etc.
           var filterID;
@@ -275,7 +304,7 @@
           }
         }
 
-        complexConditions = {"Filter": {"start_date": fromDate,"end_date": toDate, "conditions": conditions }};
+        complexConditions = {"Filter": {"start_date": startDate,"end_date": endDate, "conditions": conditions }};
         console.log("complex conditions" + JSON.stringify(complexConditions));
       }
 
@@ -322,9 +351,6 @@
 
           if (arrayOfCityIds.length == 0 && noDataAlertIsActive == false){
             noDataAlert();
-            deletePolygon();
-            deleteAllCircles();
-            console.log("2");
           }
           console.log("number of cities" + arrayOfCityIds.length);
     }
@@ -340,11 +366,13 @@
     function setMarkers(citiesFilterID, map){
      require(["libs/MarkerWithLabel/MarkerWithLabel.js"], function(){
 
-      pinColor = style.getMenuColors()[state].replace("#","");;
+      pinColor = style.getMenuColors()[state].replace("#","");
       pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
       new google.maps.Size(21, 34),
       new google.maps.Point(0,0),
       new google.maps.Point(10, 34));
+
+
       pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
       new google.maps.Size(40, 37),
       new google.maps.Point(0, 0),
@@ -362,28 +390,56 @@
               jsonPlacesFilters.push({name: dataCitiesFilter[j].CityDisambiguated.name, 
                 id: dataCitiesFilter[j].CityDisambiguated.id, 
                 newsScore: dataCitiesFilter[j].CityDisambiguated.news_score, 
-                newsCount: dataCitiesFilter[j].CityDisambiguated.document_count});      
+                newsCount: parseInt(dataCitiesFilter[j].CityDisambiguated.document_count)});      
             }
           }
         }
 
         deleteAllMarkers();
 
+        // for (i = 0; i < jsonPlacesFilters.length; i++){
+        //   console.log(jsonPlacesFilters[i].newsCount + "\n");
+        // }
+
+      var totalNews = 0;
+
+      for (i = 0; i < jsonPlacesFilters.length; i++){
+        totalNews += jsonPlacesFilters[i].newsCount;
+      }
+
+      var newsPercent;
+      for (i = 0; i < jsonPlacesFilters.length; i++){
+        newsPercent = jsonPlacesFilters[i].newsCount*100/totalNews;
+        jsonPlacesFilters[i]["newsPercent"]  = Math.ceil(newsPercent).toFixed(0);
+      }
+
         // displaying the markers for the neighbourhood places in the radius of the clicked point 
         var numberOfMarkers = 0;
         for (i = 0; i < jsonNeighbourhood.length; i++){
           if (jsonPlacesFilters[i].newsCount > 0){
-             var marker = new MarkerWithLabel({
-             position: new google.maps.LatLng(jsonNeighbourhood[i].latitude,jsonNeighbourhood[i].longitude),
-             map: map,
-             icon: pinImage,
-             shadow: pinShadow,
-            // labelAnchor: new google.maps.Point(20, 0),
-             labelClass: "labels", // the CSS class for the label
-             labelStyle: {opacity: 1},
-             labelContent: jsonPlacesFilters[i].newsCount
+            var marker = new MarkerWithLabel({
+              position: new google.maps.LatLng(jsonNeighbourhood[i].latitude,jsonNeighbourhood[i].longitude),
+              map: map,
+              icon: pinImage,
+              shadow: pinShadow,
+              labelAnchor: new google.maps.Point(20, 0),
+              labelClass: "labels", // the CSS class for the label
+              labelStyle: {opacity: 1},
+              labelContent: jsonPlacesFilters[i].newsPercent + "%"
             });
             arrMarkers.push(marker);
+
+            // //circular markers
+            // var circle = new google.maps.Circle({
+            //   map: map,
+            //   radius: 5000 + (30000*jsonPlacesFilters[i].newsPercent)/100,    // metres
+            //   fillColor: '#000000', //'#00c42f',
+            //   fillOpacity: 0.5,
+            //   strokeWeight: 0,
+            //   strokecolor: "#000000"
+            // });
+            // circle.bindTo('center', marker, 'position');
+
             numberOfMarkers++;
           }
         }
@@ -392,41 +448,59 @@
          
         if (numberOfMarkers == 0 && noDataAlertIsActive == false){
           noDataAlert();
-          deletePolygon();
-          deleteAllCircles();
         }
-    
-     });
+     }); //end require
     }
 
     function fetchNews(citiesFilterID){
       var bodyAccordion = $("#bodyAccordion");
-      var countNews;
+      var countNews, current;
       urlPool = baseUrl + "document_groups/" + citiesFilterID + pagination + apiKey + extension;
       deleteNews();
 
       $.ajax({
-            url:urlPool,
-            async:false,
-            success: function(data){ dataPoolFilter = data.data; countNews = data.pagination.count},
-            dataType:"json"
-          });
+        url:urlPool,
+        async:false,
+        success: function(data){ dataPoolFilter = data.data; countNews = data.pagination.count; current = data.pagination.current},
+        dataType:"json"
+      });
+
+      console.log(dataPoolFilter.length);
   
+      var toRemoveEmptyNews = [];
+      
+      for (i = 0; i < dataPoolFilter.length; i++){
+        if ($('<div>' + dataPoolFilter[i].Related[0].Document.description + '</div>').text() == ""){
+          toRemoveEmptyNews.push(i);
+        }
+      }
+
+      for (i = toRemoveEmptyNews.length -1; i >= 0; i--){
+        dataPoolFilter.splice(toRemoveEmptyNews[i],1);
+      }
+
+      countNews = countNews - toRemoveEmptyNews.length;
+      current = current - toRemoveEmptyNews.length;
+
       if (countNews >= 49){
         $('.panel h6').html("49 of " + countNews);
       }
       else{
-         $('.panel h6').html(countNews + " of " + countNews);
+         $('.panel h6').html(current + " of " + current);
       }
       
       //document_groups //taking only the first page
       for(i = 0; i < dataPoolFilter.length; i++){
         if (typeof(dataPoolFilter[i].Related) !== 'undefined'){
             accordionValues = {
-              article: dataPoolFilter[i].Related[0].Document.title,
-              articleBody: dataPoolFilter[i].Related[0].Document.description.replace(/<(SPAN|IMG|A|BR|P|H1|H­ 2){1}.*>/i,''), //to do - regular expression for hash symbols to be included
+              article:  $('<div>' + dataPoolFilter[i].Related[0].Document.title + '</div>').text(),
+              //articleBody: dataPoolFilter[i].Related[0].Document.description.replace(/<(SPAN|IMG|img|A|a|BR|P|p|DIV|H1|H­ 2){1}.*>/i,''), //to do - regular expression for hash symbols to be included
+              articleBody:  $('<div>' + dataPoolFilter[i].Related[0].Document.description + '</div>').text(),
               url: dataPoolFilter[i].Related[0].Document.url
             };
+            if (accordionValues.articleBody == ""){
+              console.log(accordionValues.article);
+            }
             accordionValues.accItemId = "acc" + i;
             bodyAccordion.append(fillAccordionPageTemplate(accordionValues));
           }
@@ -462,7 +536,7 @@
       $(".panel h6").html("");
     }
 
-    function callCircleNews(circle, radiusM, centerLat, centerLng){
+    function callCircleNews(map, circle, radiusM, centerLat, centerLng){
       jsonNeighbourhood = [];
       jsonPlacesFilters = [];
       deleteAllMarkers();
@@ -500,70 +574,40 @@
 
     function noDataAlert(){
       $('#noDataMessage').fadeIn("slow"); 
-      toggleAppOpacity();
+      config.toggleAppOpacity();
       noDataAlertIsActive = true
       $("#drawModeClear").css("display", "none");
+      deletePolygon();
+      deleteAllCircles();
+      deleteNews();
     }
 
-    function unloadPopupBox(eventName) { 
-        console.log("unload call");
-        $('#popup_box').fadeOut("slow");
-        toggleAppOpacity();
-        advSearchValues = {
-          keyword : $("input[name=keyword]").val(),
-          timeFilterFrom : timeRangeValues.privateValues[$("#slider").slider("values", 0)-1],
-          timeFilterTo : timeRangeValues.privateValues[$("#slider").slider("values", 1)-1],
-          place : $("input[name=place]").val(),
-          people : $("input[name=people]").val()
-        };
+
+    function flip(){
+      require(["scripts/assets/jquery.flip.js"],function(){
       
-        //$(document).trigger('advanced_search', [advSearchValues]);
-       return advSearchValues;
-    }
-  
-    //To load the Popupbox for advanced search
-    function loadPopupBox() {   
-        $('#popup_box').fadeIn("slow");
-        toggleAppOpacity();
-    }
+          $("#settings").bind("click",function(){
+            $("#configuration").fadeIn("slow");
+            // $("#flipbox").flip({
+            //     direction:'tb',
+            //     content: fillConfig,
+            //     onEnd: function(){
+            //       $("#flipBack").bind("click",function(){
+            //           console.log("test");
+            //           $("#flipbox").revertFlip();
+            //         });//bind
+                 
+            //     }//on end
+            //   }); //flip
+            });//bind
 
-    //fading out the  opacity - just for visualization - it's not blocking the application
-    //to do - block functionality
-    function toggleAppOpacity(){
-      //not working -> $("#map").toggle(function(){$(this).css({"opacity": "0.3"});}, function(){$(this).css({"opacity": "1"});});        
-      if (opacity == 1){
-        $("#map").css({"opacity": "0.3"});         
-        $("header").css({"opacity": "0.3"});
-        $("#accordion").css({"opacity": "0.3"});
-        opacity = 0.3;
-      }
-      else
-      {
-        $("#map").css({"opacity": "1"});         
-        $("header").css({"opacity": "1"});
-        $("#accordion").css({"opacity": "1"});
-        opacity = 1;
-      }
-    }
-
-    function setSlider(){
-       require([ "scripts/assets/jquery-ui-1.8.23.custom.min.js"], function(){
-         timeRangeValues = {publicValues: ["1 month ago", "2 weeks ago", "1 week ago", "yesterday", "now"], privateValues: ["-1 month", "-2 weeks", "-7 days", "-1 day", "now"]};
-
-          $( "#slider" ).slider({
-            range: true,
-            min: 1,
-            max: 5,
-            values: [3, 5],
-            slide: function( event, ui ) {
-              $( "#amount" ).val( timeRangeValues.publicValues[ui.values[ 0 ] -1] + " - " + timeRangeValues.publicValues[ui.values[ 1 ] -1]);
-            }
-          });
+          //$("#test").css("background-color","#ffffff");
+            //        console.log('when the animation has already ended');
+                    
          
-          $( "#amount" ).val( timeRangeValues.publicValues[$("#slider").slider("values", 0)-1] + 
-            " - " + timeRangeValues.publicValues[$("#slider").slider( "values", 1 )-1] );
-        });
-    }
+      
+      });//require
+    }//flip
 
     //called only once!
     function visualizationAgent(eventName){
@@ -572,15 +616,15 @@
         state = $("#linksContainer a").index(this);
         console.log(state);});
 
-      $("#advancedSearch").bind('click', loadPopupBox);
+      $("#advancedSearch").bind('click', config.loadPopupBox);
 
       $("#popupBoxClose").bind('click', function(){ 
         $('#popup_box').fadeOut("slow");
-        toggleAppOpacity();
+        config.toggleAppOpacity();
       });
 
       $("#noDataMessage button").on("click",function(){
-        toggleAppOpacity();
+        config.toggleAppOpacity();
         $("#noDataMessage").fadeOut("slow");
       });
     } //end visualizationAgent

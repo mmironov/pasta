@@ -7,18 +7,19 @@ require.config({
         async: '../libs/require/async',
         Handlebars: '../libs/handlebars/Handlebars',
         //less: '../libs/less/less',
+        MarkerWithLabel: '../libs/MarkerWithLabel/MarkerWithLabel',
         templates: '../templates',
         resources: '../resources'
     }
 });
 
 // We launch the App
-require(['jQuery', 'pageOne'], function($, pageOne) {
+require(['jQuery', 'content'], function($, content) {
     
     run();
 
     function run() {
         console.log("started!");
-        pageOne.render();
+        content.render();
     }
 });

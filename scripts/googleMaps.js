@@ -1,17 +1,36 @@
-define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/accordionPage.html"], 
-  function($, Handlebars, pageoneTemplate, accordionPageTemplate) {
+//this module contains google maps initialization and drawing over html5 canvas functionality
+define(["jQuery", "config"], 
+  function($, config) {
 
     var map, drawingManager, path, canvasProjectionOverlay, circleBound,  polygon;
     var canvas, context, paint;
-    var clickX = new Array();
-    var clickY = new Array();
-    var clickDrag = new Array();
-    var clickLatLng = new Array();
+    var clickX = [], clickY = [], clickDrag = [], clickLatLng = [];
 
     function drawMap(eventName){
+      var configValues, mapType;
 
-      // here we require the GMaps library and then we show the map
+      config.config();
+      if (window.localStorage.getItem("configValues")){
+        configValues = JSON.parse(window.localStorage.getItem("configValues"));
+        mapType = configValues.mapType.toLowerCase();
+      }
+      else{
+        mapType = google.maps.MapTypeId.ROADMAP;
+      }
+
+      //here we require the GMaps library and then we show the map
       require(["async!https://maps.googleapis.com/maps/api/js?key=AIzaSyANyAHxLy9SALbItIwwTwIP3IXRw3J5efc&sensor=true&libraries=drawing,geometry&language=en!callback"], function() {
+
+        //dynamically changing the map type when chaning options in the configuration settings
+        $("#configButton").bind("click", function(){
+          if (window.localStorage.getItem("configValues")){
+            configValues = JSON.parse(window.localStorage.getItem("configValues"));
+            if (mapType != configValues.mapType.toLowerCase()){
+              map.setMapTypeId(configValues.mapType.toLowerCase());
+            }
+          }
+        });
+
         var clickPoint=[];
         var initialPoint = new google.maps.LatLng(42.389638,13.29269); //to do - change with user's location
         var DEFAULT_ZOOM = 7; //3 to 8
@@ -20,7 +39,7 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
             zoom: DEFAULT_ZOOM,
             minZoom: DEFAULT_ZOOM - 4,
             maxZoom: DEFAULT_ZOOM + 1,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            mapTypeId: mapType,
             disableDefaultUI: true,
             zoomControl: true, //to do - to remove because it's only for desktop version
             zoomControlOptions: {position:google.maps.ControlPosition.LEFT_CENTER}
@@ -56,8 +75,7 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
               { saturation: -50 },
               { lightness: 33 }
             ]
-        }
-        ]
+        }]
 
         var mapCanvas = this.$("#map");
         
@@ -66,6 +84,8 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
             "width": $(document).width() + "px",
             "height": ($(document).height() - 45) + "px" //-45 because of the menu height = 45px (otherwise - scrollbar appears)
         });
+
+        $(".live-tile").css({"width" : $(document).width() + "px", "height":$(document).height()+"px"});
 
         map = new google.maps.Map(document.getElementById(mapCanvas.attr("id")), myOptions);
         map.setOptions({styles:styleArray});
@@ -76,18 +96,17 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
         function CanvasProjectionOverlay() {}
         CanvasProjectionOverlay.prototype = new google.maps.OverlayView();
         CanvasProjectionOverlay.prototype.constructor = CanvasProjectionOverlay;
-        CanvasProjectionOverlay.prototype.draw = function(){}; //I need this before call getProjection()
+        CanvasProjectionOverlay.prototype.draw = function(){}; //I need this before calling getProjection()
         
         canvasProjectionOverlay = new CanvasProjectionOverlay();
         canvasProjectionOverlay.setMap(map);
 
         //in order to get the center of the shape drawn by the user
         google.maps.Polygon.prototype.getBounds = function() {
-
           var bounds = new google.maps.LatLngBounds();
           var paths = this.getPaths();
           var path;
-          
+            
           for (var p = 0; p < paths.getLength(); p++) {
             path = paths.getAt(p);
             for (var i = 0; i < path.getLength(); i++) {
@@ -98,7 +117,7 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
         }
       
         var polygonOptions = {
-          strokeColor: '#00c42f', //'#00aeff' , <- blue
+          strokeColor: '#00c42f',
           strokeOpacity: 1.0,
           strokeWeight: 3,
           fillOpacity: 0.2
@@ -123,8 +142,7 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
           }
         });
         
-        drawingManager.setMap(map);
-          
+        drawingManager.setMap(map);     
       }); //end require
 
       initDrawingCanvas();
@@ -136,7 +154,6 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
       });
 
       return [map, drawingManager, canvasProjectionOverlay];
-
     } //end function drawMap
 
     function initDrawingCanvas() {
@@ -215,7 +232,6 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
         }
 
         circleBound = new google.maps.Circle(circleTest);
-        
         console.log("maxdistance " + maxDistance);
       });
     }
@@ -274,6 +290,5 @@ define(["jQuery", "Handlebars", "text!templates/pageOne.html", "text!templates/a
       distanceBetween2Points: distanceBetween2Points,
       returnCircle : returnCircle
     }
-
 });
 
